@@ -1,0 +1,15 @@
+main: dev.powns.monopoly.MonopolyPlugin
+name: Monopoly
+version: 1.0
+api-version: 1.15
+author: powns
+description: mononelonepony
+commands:
+  monopoly:
+    description: monopoly main command
+    usage: /monopoly
+
+permissions:
+  bingo.admin:
+    default: op
+    description: allows you to set game settings and start/stop the game.
