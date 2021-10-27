@@ -1,4 +1,4 @@
-package dev.powns.monopoly.domain;
+package dev.powns.monopoly.domain.game;
 
 public enum GameStateEnum {
 	LOBBY,

@@ -1,14 +1,15 @@
 package dev.powns.monopoly.managers;
 
-import dev.powns.monopoly.domain.GameCell;
-import dev.powns.monopoly.domain.GameCellType;
-import dev.powns.monopoly.domain.GameStateEnum;
-import dev.powns.monopoly.domain.LandingReason;
-import dev.powns.monopoly.domain.MonopolyGame;
-import dev.powns.monopoly.domain.PlayerState;
-import dev.powns.monopoly.domain.Team;
-import dev.powns.monopoly.domain.TeamColorEnum;
+import dev.powns.monopoly.domain.game.GameCell;
+import dev.powns.monopoly.domain.game.GameCellType;
+import dev.powns.monopoly.domain.game.GameStateEnum;
+import dev.powns.monopoly.domain.game.LandingReason;
+import dev.powns.monopoly.domain.game.MonopolyGame;
+import dev.powns.monopoly.domain.player.PlayerState;
+import dev.powns.monopoly.domain.player.Team;
+import dev.powns.monopoly.domain.player.TeamColorEnum;
 import dev.powns.monopoly.domain.estate.RealEstate;
+import dev.powns.monopoly.util.GhostPlayerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -34,7 +35,22 @@ public class GameManager {
 		this.generateTeams();
 	}
 
-	public void onDiceThrown(Team teamThrown, int amountThrown) {
+	public void onDiceThrown(Team teamThrown, int dice1, int dice2) {
+		int amountThrown = dice1 + dice2;
+		boolean doubleThrown = dice1 == dice2;
+
+		if (doubleThrown) {
+			int concurrentDoubles = this.currentGame.getConcurrentDoublesThrown();
+
+			if (concurrentDoubles == 2) {
+				// TODO: jailing.
+				this.currentGame.nextTurn();
+				return;
+			}
+
+			this.currentGame.setConcurrentDoublesThrown(concurrentDoubles + 1);
+		}
+
 		GameCell newGameCell = this.currentGame.moveTeam(teamThrown.getTeamColor(), amountThrown);
 
 		RealEstate buyableEstate = newGameCell.getPurchaseableEstate();
@@ -74,14 +90,16 @@ public class GameManager {
 				continue;
 			}
 
-			int newX = (newGameCell.getMinX() + newGameCell.getMaxX()) / 2;
-			int newY = (newGameCell.getMinY() + newGameCell.getMaxY()) / 2;
+			int newX = (newGameCell.getMinX() + newGameCell.getMaxX()) / 2 + 1;
+			int newY = (newGameCell.getMinZ() + newGameCell.getMaxZ()) / 2;
 
-			teamMember.teleport(new Location(Bukkit.getWorld("World"), newX, 91, newY));
+			teamMember.teleport(new Location(Bukkit.getWorld("World"), newX, 111, newY));
 		}
 
-		// TODO: move to correct place
-		this.currentGame.nextTurn();
+		if (!doubleThrown) {
+			// TODO: move to correct place
+			this.currentGame.nextTurn();
+		}
 	}
 
 	public Team assignPlayerToTeam(Player player) {
@@ -148,6 +166,7 @@ public class GameManager {
 		World gameWorld = Bukkit.getWorld("World");
 		gameWorld.setTime(0);
 		gameWorld.setPVP(false);
+		gameWorld.setMonsterSpawnLimit(0);
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (this.getTeamByPlayerId(player.getUniqueId()) == null) {
@@ -158,22 +177,24 @@ public class GameManager {
 		}
 
 		for (Team team : this.getActiveTeams()) {
+			team.setMoney(1500);
+
 			for (UUID memberId : team.getTeamMembers()) {
 				Player member = Bukkit.getPlayer(memberId);
 				if (member == null) {
 					continue;
 				}
 
-				member.setGameMode(GameMode.CREATIVE);
+				member.setGameMode(GameMode.SURVIVAL);
 
 				// TODO: teleport to start
-				member.teleport(new Location(Bukkit.getWorld("World"), -32, 91, -37));
+				member.teleport(new Location(Bukkit.getWorld("World"), -32, 111, -37));
 			}
-
-			team.setMoney(1500);
 		}
 
 		this.setGameState(GameStateEnum.PLAYING);
+		GhostPlayerUtil.ghostTeam(this.getTeamByColor(this.currentGame.getCurrentlyPlaying()));
+
 		Bukkit.broadcastMessage(ChatColor.GOLD + "Game started.");
 	}
 
@@ -200,10 +221,6 @@ public class GameManager {
 	}
 
 	public void updatePlayerState(UUID playerId, PlayerState playerState) {
-		if (this.uuidToPlayerState.containsKey(playerId)) {
-			return;
-		}
-
 		this.uuidToPlayerState.put(playerId, playerState);
 	}
 
@@ -221,10 +238,6 @@ public class GameManager {
 
 	public MonopolyGame getCurrentGame() {
 		return this.currentGame;
-	}
-
-	public void setCurrentGame(MonopolyGame currentGame) {
-		this.currentGame = currentGame;
 	}
 
 	public void generateTeams() {

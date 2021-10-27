@@ -1,4 +1,4 @@
-package dev.powns.monopoly.domain;
+package dev.powns.monopoly.domain.game;
 
 import dev.powns.monopoly.domain.estate.RealEstate;
 
@@ -7,27 +7,27 @@ public class GameCell {
 	private RealEstate purchaseableEstate;
 
 	private int minX;
-	private int minY;
+	private int minZ;
 	private int maxX;
-	private int maxY;
+	private int maxZ;
 
-	public GameCell(GameCellType gameCellType, int minX, int minY, int maxX, int maxY) {
-		this(gameCellType, null, minX, minY, maxX, maxY);
+	public GameCell(GameCellType gameCellType, int minX, int minZ, int maxX, int maxZ) {
+		this(gameCellType, null, minX, minZ, maxX, maxZ);
 	}
 
-	public GameCell(RealEstate purchaseableEstate, int minX, int minY, int maxX, int maxY) {
-		this(GameCellType.BUYABLE, purchaseableEstate, minX, minY, maxX, maxY);
+	public GameCell(RealEstate purchaseableEstate, int minX, int minZ, int maxX, int maxZ) {
+		this(GameCellType.BUYABLE, purchaseableEstate, minX, minZ, maxX, maxZ);
 	}
 
-	public GameCell(GameCellType gameCellType, RealEstate purchaseableEstate, int minX, int minY, int maxX, int maxY) {
+	public GameCell(GameCellType gameCellType, RealEstate purchaseableEstate, int minX, int minZ, int maxX, int maxZ) {
 		this.gameCellType = gameCellType;
 
 		this.purchaseableEstate = purchaseableEstate;
 
 		this.minX = minX;
-		this.minY = minY;
+		this.minZ = minZ;
 		this.maxX = maxX;
-		this.maxY = maxY;
+		this.maxZ = maxZ;
 	}
 
 	public int getMinX() {
@@ -38,12 +38,12 @@ public class GameCell {
 		this.minX = minX;
 	}
 
-	public int getMinY() {
-		return this.minY;
+	public int getMinZ() {
+		return this.minZ;
 	}
 
-	public void setMinY(int minY) {
-		this.minY = minY;
+	public void setMinZ(int minZ) {
+		this.minZ = minZ;
 	}
 
 	public int getMaxX() {
@@ -54,12 +54,12 @@ public class GameCell {
 		this.maxX = maxX;
 	}
 
-	public int getMaxY() {
-		return this.maxY;
+	public int getMaxZ() {
+		return this.maxZ;
 	}
 
-	public void setMaxY(int maxY) {
-		this.maxY = maxY;
+	public void setMaxZ(int maxZ) {
+		this.maxZ = maxZ;
 	}
 
 	public GameCellType getGameCellType() {

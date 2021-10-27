@@ -1,12 +1,15 @@
-package dev.powns.monopoly.domain;
+package dev.powns.monopoly.domain.game;
 
 import dev.powns.monopoly.MonopolyPlugin;
+import dev.powns.monopoly.domain.player.Team;
+import dev.powns.monopoly.domain.player.TeamColorEnum;
 import dev.powns.monopoly.domain.estate.CompanyEstate;
 import dev.powns.monopoly.domain.estate.RealEstate;
 import dev.powns.monopoly.domain.estate.RegularEstate;
 import dev.powns.monopoly.domain.estate.RegularEstateColor;
 import dev.powns.monopoly.domain.estate.TrainStation;
 import dev.powns.monopoly.managers.GameManager;
+import dev.powns.monopoly.util.GhostPlayerUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,31 +47,52 @@ public class MonopolyGame {
 			currentTeamIndex++;
 		}
 
+		GhostPlayerUtil.ghostTeam(gameManager.getTeamByColor(this.currentlyPlaying));
 		this.currentlyPlaying = teams.get(currentTeamIndex).getTeamColor();
 		this.concurrentDoublesThrown = 0;
+
+		GhostPlayerUtil.ghostTeam(gameManager.getTeamByColor(this.currentlyPlaying));
 
 		System.out.println(this.currentlyPlaying.getName() + " is next.");
 	}
 
 	public GameCell moveTeam(TeamColorEnum teamColorEnum, int change) {
+		GameManager gameManager = MonopolyPlugin.getInstance().getGameManager();
+
 		int currentPosition = this.teamLocations.get(teamColorEnum);
-		int maxPosition = this.board.size();
+		int maxPosition = this.board.size() - 1;
+		int nextPossiblePosition = currentPosition + change;
 
-		System.out.println(currentPosition);
-		System.out.println(maxPosition);
-		System.out.println(currentPosition + change);
-
-		if (currentPosition + change >= maxPosition) {
-			currentPosition = (currentPosition + change) - maxPosition;
-		} else if (currentPosition + change < 0) {
-			currentPosition = maxPosition + (currentPosition + change);
-		} else {
-			currentPosition += change;
+		for (Map.Entry<TeamColorEnum, Integer> positionEntry : this.teamLocations.entrySet()) {
+			System.out.println(positionEntry.getKey().getName() + " = " + positionEntry.getValue());
 		}
 
-		this.teamLocations.put(teamColorEnum, currentPosition);
+		System.out.println(currentPosition);
+		System.out.println(change);
+		System.out.println(maxPosition);
+		System.out.println(nextPossiblePosition);
 
-		return this.board.get(currentPosition);
+		if (nextPossiblePosition >= maxPosition) {
+			System.out.println("a");
+
+			nextPossiblePosition = nextPossiblePosition - maxPosition;
+		} else if (currentPosition + change < 0) {
+			System.out.println("b");
+
+			nextPossiblePosition = maxPosition + nextPossiblePosition;
+		}
+
+		this.teamLocations.put(teamColorEnum, nextPossiblePosition);
+
+		// TODO: fix
+		GhostPlayerUtil.ghostTeam(gameManager.getTeamByColor(this.currentlyPlaying));
+		GhostPlayerUtil.ghostTeam(gameManager.getTeamByColor(this.currentlyPlaying));
+
+		return this.board.get(nextPossiblePosition);
+	}
+
+	public GameCell getTeamPosition(TeamColorEnum teamColorEnum) {
+		return this.board.get(this.teamLocations.get(teamColorEnum));
 	}
 
 	public boolean fullStreetOwned(TeamColorEnum teamColorEnum, RegularEstateColor regularEstateColor) {

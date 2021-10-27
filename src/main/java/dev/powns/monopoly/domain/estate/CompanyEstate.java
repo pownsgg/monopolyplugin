@@ -1,7 +1,7 @@
 package dev.powns.monopoly.domain.estate;
 
 import dev.powns.monopoly.MonopolyPlugin;
-import dev.powns.monopoly.domain.LandingReason;
+import dev.powns.monopoly.domain.game.LandingReason;
 import dev.powns.monopoly.managers.GameManager;
 
 public class CompanyEstate extends RealEstate {

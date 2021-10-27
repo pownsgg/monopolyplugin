@@ -1,7 +1,7 @@
 package dev.powns.monopoly.domain.estate;
 
 import dev.powns.monopoly.MonopolyPlugin;
-import dev.powns.monopoly.domain.LandingReason;
+import dev.powns.monopoly.domain.game.LandingReason;
 
 public class RegularEstate extends RealEstate {
 	private final RegularEstateColor regularEstateColor;

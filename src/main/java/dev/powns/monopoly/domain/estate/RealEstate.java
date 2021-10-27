@@ -1,7 +1,7 @@
 package dev.powns.monopoly.domain.estate;
 
-import dev.powns.monopoly.domain.LandingReason;
-import dev.powns.monopoly.domain.TeamColorEnum;
+import dev.powns.monopoly.domain.game.LandingReason;
+import dev.powns.monopoly.domain.player.TeamColorEnum;
 
 public abstract class RealEstate {
 	protected String name;

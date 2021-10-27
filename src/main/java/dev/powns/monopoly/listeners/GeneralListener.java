@@ -1,10 +1,10 @@
 package dev.powns.monopoly.listeners;
 
 import dev.powns.monopoly.MonopolyPlugin;
-import dev.powns.monopoly.domain.GameStateEnum;
-import dev.powns.monopoly.domain.PlayerState;
-import dev.powns.monopoly.domain.Team;
-import dev.powns.monopoly.domain.TeamColorEnum;
+import dev.powns.monopoly.domain.game.GameStateEnum;
+import dev.powns.monopoly.domain.player.PlayerState;
+import dev.powns.monopoly.domain.player.Team;
+import dev.powns.monopoly.domain.player.TeamColorEnum;
 import dev.powns.monopoly.managers.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,9 +27,8 @@ public class GeneralListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		GameManager gameManager = MonopolyPlugin.getInstance().getGameManager();
-		PlayerState playerState = gameManager.getPlayerState(e.getPlayer().getUniqueId());
 		Player player = e.getPlayer();
-
+		PlayerState playerState = gameManager.getPlayerState(player.getUniqueId());
 //		ScoreboardCreator.updateBoard();
 
 		if (playerState == PlayerState.PLAYING) {
@@ -71,10 +70,6 @@ public class GeneralListener implements Listener {
 
 		if (playerState == PlayerState.SPECTATING) {
 			player.setGameMode(GameMode.SPECTATOR);
-		}
-
-		if (gameManager.getActiveTeams().size() > 0) {
-			gameManager.startGame();
 		}
 	}
 
